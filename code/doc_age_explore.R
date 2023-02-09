@@ -39,7 +39,10 @@ recids_doc <- data_doc[inmateid %in% recids$inmateid, .(inmateid, inmate_status_
 
 recids_doc <- unique(recids_doc)
 
-write.csv(recids_doc,"data/recids_daily_census_2_9_23_bf.csv")
+recids_doc[, first_admin_date := min(admitted_dt), by = "inmateid"]
+recids_doc[, last_admin_date := max(admitted_dt), by = "inmateid"]
+
+# write.csv(recids_doc,"data/recids_daily_census_2_9_23_bf.csv")
 
 
 
