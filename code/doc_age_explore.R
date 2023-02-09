@@ -35,9 +35,11 @@ subdt <- data_doc[,.(admitted_dt, inmateid)]
 subdt <- unique(subdt)
 
 recids <- subdt[, .N, by = "inmateid"][order(N, decreasing=TRUE)][N>1]
-recids_doc <- data_doc[inmateid %in% recids$inmateid, .(inmateid, inmate_status_code, top_charge, date_, admitted_dt)]
+recids_doc <- data_doc[inmateid %in% recids$inmateid, .(inmateid, inmate_status_code, top_charge, date_, admitted_dt, age)]
 
 recids_doc <- unique(recids_doc)
+
+write.csv(recids_doc,"data/recids_daily_census_2_9_23_bf.csv")
 
 
 
