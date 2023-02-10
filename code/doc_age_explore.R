@@ -41,6 +41,7 @@ recids_doc <- unique(recids_doc)
 
 recids_doc[, first_admin_date := min(admitted_dt), by = "inmateid"]
 recids_doc[, last_admin_date := max(admitted_dt), by = "inmateid"]
+recids_doc[max(date_) < Sys.Date(), release_date := max(date_)<last_admin_date, by = "inmateid"]
 
 # write.csv(recids_doc,"data/recids_daily_census_2_9_23_bf.csv")
 
