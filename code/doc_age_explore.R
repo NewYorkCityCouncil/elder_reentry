@@ -8,7 +8,6 @@ l_files <- sapply(l_files, fread, simplify = FALSE)
 
 data_doc <- rbindlist(l_files, idcol="id")
 
-
 # clean dates
 data_doc[, id := trimws(id)]
 data_doc[, id:= gsub("  ", " ", id)]
