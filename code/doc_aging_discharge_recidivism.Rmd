@@ -1,0 +1,65 @@
+---
+title: "CJ & Aging: Discharge + Recidivism for Aging Population"
+author: "Melissa Nunez"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  html_document:
+    code_folding: show
+    theme: cosmo
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(lubridate)
+library(ggplot2)
+library(councildown)
+library(dplyr)
+library(stringr)
+library(tidyr)
+
+# Read data
+doc_releases <- read.csv("https://data.cityofnewyork.us/resource/94ri-3ium.csv?$limit=999999999", na.strings=c("","NA"))
+
+# Seperate date/time column for release date
+doc_releases <- separate(doc_releases, discharged_dt,c("discharge_date","discharge_time"),sep="T")
+doc_releases$discharge_date <- as.Date(doc_releases$discharge_date)
+
+# Separate date/time for admitted date
+doc_releases <- separate(doc_releases, admitted_dt,c("admitted_date","admitted_time"),sep="T")
+doc_releases$admitted_date <- as.Date(doc_releases$admitted_date)
+
+# Isolate year
+doc_releases$discharge_year <- year(doc_releases$discharge_date)
+doc_releases$admitted_year <- year(doc_releases$admitted_date)
+
+#  Create 50 or older at release variable
+doc_releases$aging <- ifelse(doc_releases$age>=50, "yes", "no")
+
+# Some charts
+doc_releases %>% group_by(discharge_year, aging) %>% drop_na(age) %>% summarize(count=n()) %>% mutate(percent=count/sum(count)) %>% ggplot(aes(x=discharge_year, y=percent, fill=aging)) + geom_bar(stat="identity", position=position_dodge())
+
+# Number of people being released each year is decreasing. The percent of those being released that are 50+ and older has also been decreasing
+doc_releases %>% group_by(discharge_year, aging) %>% drop_na(age) %>% summarize(count=n()) %>% mutate(percent=count/sum(count)) %>% filter(discharge_year!=2023) %>% ggplot(aes(x=discharge_year, y=count, fill=aging)) + geom_bar(stat="identity")
+
+# Looking at average release age over time
+doc_releases %>% group_by(discharge_year) %>% summarize(avg_age=mean(age, na.rm=TRUE), median_age=median(age, na.rm=TRUE)) %>% ggplot(aes(x=discharge_year, y = avg_age)) + geom_point() + geom_line()
+
+# Recidivism
+#doc_releases %>% group_by(inmateid) %>% summarize(count= n())
+
+#doc_releases %>% filter(inmateid==140)
+
+recidivism_pop <- doc_releases %>% group_by(inmateid) %>% summarize(count= n()) %>% filter(count>=2)
+
+doc_releases %>% filter(inmateid %in% recidivism_pop$inmateid) %>% group_by(discharge_year, aging) %>% drop_na(age) %>% summarize(count=n()) %>% mutate(percent=count/sum(count)) %>% filter(discharge_year!=2023) %>% ggplot(aes(x=discharge_year, y=count, fill=aging)) + geom_bar(stat="identity")
+
+doc_releases %>% group_by(discharge_year, aging) %>% drop_na(age) %>% summarize(count=n()) %>% mutate(percent=count/sum(count)) %>% filter(discharge_year!=2023) %>% ggplot(aes(x=discharge_year, y=count, fill=aging)) + geom_bar(stat="identity")
+
+```
+
+
