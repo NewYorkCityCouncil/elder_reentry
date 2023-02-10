@@ -38,10 +38,23 @@ recids <- subdt[, .N, by = "inmateid"][order(N, decreasing=TRUE)][N>1]
 recids_doc <- data_doc[inmateid %in% recids$inmateid, .(inmateid, inmate_status_code, top_charge, date_, admitted_dt, age)]
 
 recids_doc <- unique(recids_doc)
+# recids_doc
 
+
+setorder(recids_doc, "admitted_dt", "inmateid")
 recids_doc[, first_admin_date := min(admitted_dt), by = "inmateid"]
 recids_doc[, last_admin_date := max(admitted_dt), by = "inmateid"]
-recids_doc[max(date_) < Sys.Date(), release_date := max(date_)<last_admin_date, by = "inmateid"]
+recids_doc_sub <- recids_doc[,.(admitted_dt, inmateid)]
+recids_doc_sub <- unique(recids_doc_sub)
+
+recids_doc_sub[, order_adm_times := order(admitted_dt), by = "inmateid"]
+
+recids_2 <- merge(recids_doc, recids_doc_sub, by = c("admitted_dt", "inmateid"))
+
+
+
+
+
 
 # write.csv(recids_doc,"data/recids_daily_census_2_9_23_bf.csv")
 
