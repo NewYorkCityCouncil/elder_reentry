@@ -37,7 +37,6 @@ recids <- subdt[, .N, by = "inmateid"][order(N, decreasing=TRUE)][N>1]
 recids_doc <- data_doc[inmateid %in% recids$inmateid, .(inmateid, inmate_status_code, top_charge, date_, admitted_dt, age)]
 
 recids_doc <- unique(recids_doc)
-# recids_doc
 
 # make sure order is in tact
 setorder(recids_doc, "admitted_dt", "inmateid")
@@ -47,6 +46,8 @@ recids_doc_sub <- unique(recids_doc_sub)
 # count/rank the order of admit by date
 recids_doc_sub[, order_adm_times := order(admitted_dt), by = "inmateid"]
 recids_2 <- merge(recids_doc, recids_doc_sub, by = c("admitted_dt", "inmateid"))
+
+setorder(recids_doc, "date_", "inmateid")
 # split by rank and id and then grab the last record
 list_inmate_id <- split(recids_2, by=c("inmateid", "order_adm_times"))
 inmate_grp_dates <- lapply(list_inmate_id, function(x) tail(x, n=1))
@@ -57,6 +58,9 @@ inmate_grp_dates_dt <- rbindlist(inmate_grp_dates)
 # order_adm_times is the first, second, etc time of admit for an id
 
 setnames(inmate_grp_dates_dt, "date_", "release_date_approx")
+
+
+
 write.csv(inmate_grp_dates_dt,"data/recids_daily_census_2_10_23_bf.csv")
 
 
