@@ -9,12 +9,7 @@ library(lubridate)
 library(data.table)
 library(dplyr)
 library(ggplot2)
-
-l_files <- list.files("/home/brooke/doc_daily_census", pattern = ".csv", full.names = TRUE)
-# l_files <- paste("/home/brooke/doc_daily_census/", l_files, sep = "")
-l_files <- sapply(l_files, fread, simplify = FALSE)
-
-data_doc <- rbindlist(l_files, idcol="id")
+data_doc <- fread("daily_census.csv")
 
 # clean dates
 data_doc[, id := trimws(id)]
@@ -33,24 +28,25 @@ data_doc[, date_ := paste(m, day, year, sep = "-")]
 data_doc[, date_ := as.Date(date_, format = "%m-%d-%Y")]
 data_doc[,id:= NULL]
 data_doc[, admitted_dt:= as.Date(admitted_dt)]
-data_doc[, `50 Years and Over` := ifelse(age>=50, TRUE,FALSE), by = "admitted_dt"]
+data_doc2 <- data_doc[admitted_dt>=as.Date("2019-10-09"), ]
+data_doc2[, `50 Years and Over` := ifelse(age>=50, TRUE,FALSE), by = "admitted_dt"]
 
 # subset to data we can trust because we dont know about turnover before the chron job, so admits after the date_pulled
-date_doc <- data_doc[admitted_dt>=date_, ]
-data_doc[, year_adm := year(admitted_dt)]
 
-data_doc[, n_per_day_date := .N, by = "date_"]
-data_doc[, n_per_day_age_date := .N, by =c("date_", "50 Years and Over")]
+data_doc2[, year_adm := year(admitted_dt)]
+data_doc2[, n_per_day_date := .N, by = "date_"]
+data_doc2[, n_per_day_age_date := .N, by =c("date_", "50 Years and Over")]
+
+top5_charges <- data_doc2[!top_charge %in% "", .N, by = "top_charge"][order(N, decreasing = TRUE)][1:5]
 ```
 
-##### Total population at Rikers by over and under 50 years old
+##### Total population at Rikers over and under 50 years old
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 # n per day population by date_ (date of census)
-plot_dt_dage <- unique(data_doc[, .(date_, n_per_day_age_date, n_per_day_date,`50 Years and Over`)])
+plot_dt_dage <- unique(data_doc2[, .(date_, n_per_day_age_date, n_per_day_date,`50 Years and Over`)])
 
 # (plot_dt_dage, "data/n_per_day_age_pop.csv")
-ggplot(plot_dt_dage[!is.na( `50 Years and Over`),],  aes(x=date_, y = n_per_day_age_date, group=`50 Years and Over`, color=`50 Years and Over`)) + 
-  theme_bw()  + geom_smooth(se=FALSE) + xlab("Date") + ylab("Number in Rikers that Day")
+ggplot(plot_dt_dage, aes(x=date_, y = n_per_day_age_date, group=`50 Years and Over`, color=`50 Years and Over`)) +  geom_smooth(se=FALSE) + theme_bw() + xlab("Date") + ylab("Number in Rikers that Day")
 
 ```
 
@@ -58,29 +54,78 @@ ggplot(plot_dt_dage[!is.na( `50 Years and Over`),],  aes(x=date_, y = n_per_day_
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 # let's look number admitted 
 # n per day admit date - brain fog not sure if this is the right approach, dont think it can be trusted before date
-plot_dt_adm <- data_doc[, .(n_per_day_age_adm = .N), by =c("admitted_dt", "50 Years and Over")]
+plot_dt_adm <-(data_doc2[, .(n_per_day_age_adm = .N), by =c("admitted_dt", "50 Years and Over")])
 
-ggplot(plot_dt_adm[!is.na(`50 Years and Over`),],  aes(x=admitted_dt, y = n_per_day_age_adm, group=`50 Years and Over`, color=`50 Years and Over`)) + theme_bw()  + geom_smooth(se=FALSE) + xlab("Date of Admission") + ylab("Number per Day")
+ggplot(plot_dt_adm[!is.na("50 Years and Over") & admitted_dt>as.Date("2019-10-09"),],  aes(x=admitted_dt, y = n_per_day_age_adm, group=`50 Years and Over`, color=`50 Years and Over`)) + theme_bw()  + geom_smooth(se=FALSE) + xlab("Date of Admission") + ylab("Number per Day")
 ```
 
 
-##### Length of stay for people under and over 50 years old by day of admittance 
+##### Length of stay for people under and over 50 years old who have been to rikers **once** by day of admittance and top charge
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # subset to separate once vs recids 
-subdt <- data_doc[,.(admitted_dt, inmateid)]
+subdt <- data_doc2[,.(admitted_dt, inmateid)]
 subdt <- unique(subdt)
 
 once_rikers <- subdt[, .N, by = "inmateid"][order(N, decreasing=TRUE)][N==1]
-once_rikers_dt <- data_doc[inmateid %in% once_rikers$inmateid, ]
+once_rikers_dt <- data_doc2[inmateid %in% once_rikers$inmateid, ]
 once_rikers_dt[, approx_release_date := max(date_), by = "inmateid"]
 
 # subset to release dates before today 2/13/23
 lot_once <- once_rikers_dt[approx_release_date< (Sys.Date()-1), ]
 lot_once[, lot := approx_release_date - admitted_dt]
-lot_once_sub <- lot_once[,.(admitted_dt, approx_release_date, lot)]
+lot_once_sub <- lot_once[top_charge %in% top5_charges$top_charge,.(admitted_dt, approx_release_date, lot, top_charge, `50 Years and Over`, approx_release_date)]
 
-lot_once_sub[, med_lot_rel := median(lot), by = "admitted_dt"]
-med_lot_adm <- unique(lot_once_sub[,.(med_lot_rel, admitted_dt)])
+lot_once_sub[, med_lot_adm := median(lot), by = c("admitted_dt", "50 Years and Over", "top_charge")]
+lot_once_sub[, med_lot_rel := median(lot), by = c("approx_release_date", "50 Years and Over", "top_charge")]
+lot_adm <- unique(lot_once_sub[admitted_dt>as.Date("2019-10-09"),.(med_lot_adm, med_lot_rel, admitted_dt, `50 Years and Over`, top_charge)])
+
+# remove outliers?
+
+# summary(as.numeric(med_lot_adm$med_lot_rel))
+
+# ggplot(lot_adm, aes(x=med_lot_adm)) + geom_histogram()
+
+ggplot(lot_adm[!is.na(`50 Years and Over`)], aes(x=admitted_dt, y=med_lot_adm,  group=`50 Years and Over`, color=`50 Years and Over`)) + geom_smooth(se=FALSE) + theme_bw() + xlab("Admitted Date") + ylab("Median Lenght of Time Spent Incarcerated")
+
+
+
+# ggplot(lot_adm[!is.na(`50 Years and Over`)], aes(x=med_lot_adm)) + geom_density()
+```
+
+
+##### Recidivists by 50 years old and over and under 50 years old
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+recids <- subdt[, .N, by = "inmateid"][order(N, decreasing=TRUE)][N>1]
+recids_doc <- data_doc2[inmateid %in% recids$inmateid, .(inmateid, inmate_status_code, top_charge, date_, admitted_dt, age, `50 Years and Over`)]
+recids_doc <- unique(recids_doc)
+
+# people who have been in once
+# make sure order is in tact
+setorder(recids_doc, "admitted_dt", "inmateid")
+recids_doc_sub <- recids_doc[,.(admitted_dt, inmateid)]
+recids_doc_sub <- unique(recids_doc_sub)
+
+# count/rank the order of admit by date
+recids_doc_sub[, order_adm_times := order(admitted_dt), by = "inmateid"]
+recids_2 <- merge(recids_doc, recids_doc_sub, by = c("admitted_dt", "inmateid"))
+setorder(recids_doc, "date_", "inmateid")
+
+# split by rank and id and then grab the last record
+list_inmate_id <- split(recids_2, by=c("inmateid", "order_adm_times"))
+inmate_grp_dates <- lapply(list_inmate_id, function(x) tail(x, n=1))
+inmate_grp_dates_dt <- rbindlist(inmate_grp_dates)
+
+setorder(inmate_grp_dates_dt, inmateid, order_adm_times)
+
+rem_1 <- inmate_grp_dates_dt[, .(admitted_dt, date_, inmateid)]
+rem_last <- inmate_grp_dates_dt[tail(date_, -1),.(date_),by = c("inmateid", "date_")]
+rem_fst <- inmate_grp_dates_dt[!date_ %in% head(admitted_dt, 1),.(admitted_dt),by = "inmateid"]
+cbind(rem_fst, rem_last)
+
+rem_last[, recid_time := date_-admitted_dt]
+
+ggplot(rem_last, aes(x=date_, y=recid_time))
+
 
 ```
 
