@@ -1,0 +1,86 @@
+---
+title: "DOC Elder Re-entry"
+author: "Brook Frye"
+date: "2/14/2023"
+output: html_document
+---
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+library(lubridate)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+
+l_files <- list.files("/home/brooke/doc_daily_census", pattern = ".csv", full.names = TRUE)
+# l_files <- paste("/home/brooke/doc_daily_census/", l_files, sep = "")
+l_files <- sapply(l_files, fread, simplify = FALSE)
+
+data_doc <- rbindlist(l_files, idcol="id")
+
+# clean dates
+data_doc[, id := trimws(id)]
+data_doc[, id:= gsub("  ", " ", id)]
+data_doc[, id := gsub(".csv", "", id, fixed = TRUE)]
+
+data_doc[, month_ := sapply(strsplit(id, " "), "[", 3)]
+data_doc[, day := sapply(strsplit(id, " "), "[", 4)]
+data_doc[, year := sapply(strsplit(id, " "), "[", 6)]
+data_doc[, m := recode(month_, "Jan" = 1, "Feb" = 2, "Mar" = 3, 
+                   "Apr" = 4, "May" = 5, "Jun" = 6, "Jul" = 7, 
+                   "Aug" = 8, "Sep" = 9, "Oct" = 10, "Nov" = 11,
+                   "Dec" = 12)]
+
+data_doc[, date_ := paste(m, day, year, sep = "-")]
+data_doc[, date_ := as.Date(date_, format = "%m-%d-%Y")]
+data_doc[,id:= NULL]
+data_doc[, admitted_dt:= as.Date(admitted_dt)]
+data_doc[, `50 Years and Over` := ifelse(age>=50, TRUE,FALSE), by = "admitted_dt"]
+
+# subset to data we can trust because we dont know about turnover before the chron job, so admits after the date_pulled
+date_doc <- data_doc[admitted_dt>=date_, ]
+data_doc[, year_adm := year(admitted_dt)]
+
+data_doc[, n_per_day_date := .N, by = "date_"]
+data_doc[, n_per_day_age_date := .N, by =c("date_", "50 Years and Over")]
+```
+
+##### Total population at Rikers by over and under 50 years old
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# n per day population by date_ (date of census)
+plot_dt_dage <- unique(data_doc[, .(date_, n_per_day_age_date, n_per_day_date,`50 Years and Over`)])
+
+# (plot_dt_dage, "data/n_per_day_age_pop.csv")
+ggplot(plot_dt_dage[!is.na( `50 Years and Over`),],  aes(x=date_, y = n_per_day_age_date, group=`50 Years and Over`, color=`50 Years and Over`)) + 
+  theme_bw()  + geom_smooth(se=FALSE) + xlab("Date") + ylab("Number in Rikers that Day")
+
+```
+
+##### Number of people under and over 50 years old by day of admittance 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# let's look number admitted 
+# n per day admit date - brain fog not sure if this is the right approach, dont think it can be trusted before date
+plot_dt_adm <- data_doc[, .(n_per_day_age_adm = .N), by =c("admitted_dt", "50 Years and Over")]
+
+ggplot(plot_dt_adm[!is.na(`50 Years and Over`),],  aes(x=admitted_dt, y = n_per_day_age_adm, group=`50 Years and Over`, color=`50 Years and Over`)) + theme_bw()  + geom_smooth(se=FALSE) + xlab("Date of Admission") + ylab("Number per Day")
+```
+
+
+##### Length of stay for people under and over 50 years old by day of admittance 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# subset to separate once vs recids 
+subdt <- data_doc[,.(admitted_dt, inmateid)]
+subdt <- unique(subdt)
+
+once_rikers <- subdt[, .N, by = "inmateid"][order(N, decreasing=TRUE)][N==1]
+once_rikers_dt <- data_doc[inmateid %in% once_rikers$inmateid, ]
+once_rikers_dt[, approx_release_date := max(date_), by = "inmateid"]
+
+# subset to release dates before today 2/13/23
+lot_once <- once_rikers_dt[approx_release_date< (Sys.Date()-1), ]
+lot_once[, lot := approx_release_date - admitted_dt]
+lot_once_sub <- lot_once[,.(admitted_dt, approx_release_date, lot)]
+
+lot_once_sub[, med_lot_rel := median(lot), by = "admitted_dt"]
+med_lot_adm <- unique(lot_once_sub[,.(med_lot_rel, admitted_dt)])
+
+```
+
