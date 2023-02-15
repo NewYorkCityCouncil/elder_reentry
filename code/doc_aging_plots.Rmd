@@ -263,7 +263,7 @@ ggplot(data=state_app) +
 
 ```
 ```{r}
-under_custody_pop <- read.csv("under_custody_pop.csv")
+under_custody_pop <- read.csv("../data/input/raw/under_custody_pop.csv")
 ```
 
 ```{r}
