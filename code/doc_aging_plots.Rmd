@@ -294,7 +294,7 @@ dev.off()
 ```{r}
 #png(filename="undercustody_p.png", width=600, height=400)
 p <- ggplot(data=total_under_custody) + 
-  geom_line(aes(x=year, y=(age50_59+age60_over)/age_total, colour="50 & over")) +
+  geom_line(aes(x=year, y=(age50_59+age60_over)/age_total, colour="50 & over"), size=1, linetype="dashed") +
   geom_line(aes(x=year, y=(age16_20)/age_total, colour="20 & under")) +
   geom_line(aes(x=year, y=(age21_29)/age_total, colour="21-29")) +
   geom_line(aes(x=year, y=(age30_39)/age_total, colour="30-39")) +
