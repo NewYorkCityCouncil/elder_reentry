@@ -292,8 +292,8 @@ dev.off()
 ```
 
 ```{r}
-png(filename="undercustody_p.png", width=600, height=400)
-ggplot(data=total_under_custody) + 
+#png(filename="undercustody_p.png", width=600, height=400)
+p <- ggplot(data=total_under_custody) + 
   geom_line(aes(x=year, y=(age50_59+age60_over)/age_total, colour="50 & over")) +
   geom_line(aes(x=year, y=(age16_20)/age_total, colour="20 & under")) +
   geom_line(aes(x=year, y=(age21_29)/age_total, colour="21-29")) +
@@ -304,6 +304,11 @@ ggplot(data=total_under_custody) +
                                         subtitle="Reported by the DOCCS Annual Under Custody Report",
                                         x="Year",
                                         y="Percent of Total Under Custody",
-                                        color="Age Group") + theme_nycc()
-dev.off()
+                                        color="Age Group") + 
+  theme_nycc() + scale_color_nycc()
+
+p
+
+ggsave(p, filename = "../visuals/undercustody_p.png", width = 8, height = 5)
+#dev.off()
 ```
