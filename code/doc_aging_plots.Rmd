@@ -262,3 +262,35 @@ ggplot(data=state_app) +
   theme_nycc()
 
 ```
+```{r}
+under_custody_pop <- read.csv("under_custody_pop.csv")
+```
+
+```{r}
+total_under_custody <- subset(under_custody_pop,incarceration_status == "total under custody")
+```
+
+```{r}
+head(total_under_custody)
+```
+
+
+```{r}
+png(filename="undercustody_num.png", width=600, height=400)
+ggplot(data=total_under_custody) + 
+  geom_line(aes(x=year, y=age50_59+age60_over, colour="50 & Over")) +
+  geom_line(aes(x=year, y=(age16_20), colour="20 & under")) +
+  geom_line(aes(x=year, y=(age21_29), colour="21-29")) +
+  geom_line(aes(x=year, y=(age30_39), colour="30-39")) +
+  geom_line(aes(x=year, y=(age40_49), colour="40-49")) +
+  scale_x_continuous(n.breaks=9) +  labs(title="NYS Total Under Custody (2011-2021)", 
+                                        subtitle="Reported by the DOCCS Annual Under Custody Report",
+                                        x="Year",
+                                        y="Total Under Custody",
+                                        color="Age Group") + theme_nycc()
+dev.off()
+```
+
+```{r}
+png(filename="undercustody_p.png", width=600, height=400)
+ggplot(data=total_under_custody) + 
