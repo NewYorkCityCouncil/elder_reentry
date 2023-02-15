@@ -51,8 +51,8 @@ p <- ggplot(data=returns_only) +
             linetype = "dashed", size =1) +
   geom_line(aes(x=year, y=(age16_18+age19_20)/year_total, colour="20 & under")) +
   geom_line(aes(x=year, y=(age21_24+age25_29)/year_total, colour="21-29")) +
-  geom_line(aes(x=year, y=(age30_34)/year_total, colour="30-34")) +
-  geom_line(aes(x=year, y=(age35_39)/year_total, colour="35-39")) +
+  geom_line(aes(x=year, y=(age30_34+age35_39)/year_total, colour="30-34")) +
+
   geom_line(aes(x=year, y=(age40_44+age45_49)/year_total, colour="40-49")) +
   scale_x_continuous(n.breaks=9) + scale_y_continuous(labels=scales::percent) +labs(title="NYS Returns within Three Years Post-Release (2011-2021)", 
                                         subtitle="Reported by the DOCCS Annual Inmate Releases report.",
@@ -98,7 +98,7 @@ ggplot(data=year_age_fr) +
 # ----- AGE OF PEOPLE RELEASED FROM DOC FACILITIES OVER TIME -----
 # --- OF AGING INDIVIDUALS ---
 # These were individuals who were released to the community for the first time on their current sentence due to release by the Board of Parole, release due to reaching their approved conditional release date (including maximum expiration with post-release supervision), or release based on reaching maximum expiration of sentence.
-ggplot(data=year_age_fr) + 
+p <- ggplot(data=year_age_fr) + 
   geom_line(aes(x=year, y=age50_59/total_50_over, colour="50-59")) +
   geom_line(aes(x=year, y=age60_64/total_50_over, colour="60-64")) +
   geom_line(aes(x=year, y=age65_69/total_50_over, colour="65-69")) +
@@ -108,13 +108,15 @@ ggplot(data=year_age_fr) +
                                         subtitle="Reported by the DOCCS annual releases and discharges from incarceration report.",
                                         x="Year",
                                         y="Individuals released (proportion)",
-                                        color="Age group") + theme_nycc()
+                                        color="Age group") + 
+  theme_nycc()
 ```
 
 ```{r}
-png(filename="firstreleases_age_num_d.png", width=600, height=400)
-ggplot(data=year_age_fr) +
-  geom_line(aes(x=year, y=total_50_over, colour="all ages 50+")) +
+#png(filename="firstreleases_age_num_d.png", width=600, height=400)
+p <- ggplot(data=year_age_fr) +
+  geom_line(aes(x=year, y=total_50_over, colour="all ages 50+"),
+            size=1, linetype="dashed") +
   geom_line(aes(x=year, y=(age17+age18+age19+age20+age21), colour="21 and under")) +
   geom_line(aes(x=year, y=(age22_24+age25_29), colour="22-29")) +
   geom_line(aes(x=year, y=(age30_34+age35_39), colour="30-39")) +
@@ -124,28 +126,41 @@ ggplot(data=year_age_fr) +
                                         subtitle="Reported by the DOCCS annual releases and discharges from incarceration report.",
                                         x="Year",
                                         y="Individuals released (number)",
-                                        color="Age group by decades") + theme_nycc()
-dev.off()
+                                        color="Age group by decades") + 
+  theme_nycc() + scale_color_nycc()
+p
+ggsave(p, filename = "../visuals/firstreleases_age_num_d.png", width = 8, height = 5)
+#dev.off()
 ```
 
 ```{r}
 # ----- AGE OF PEOPLE RELEASED FROM DOC FACILITIES OVER TIME -----
 # ----- BY DECADE
 # These were individuals who were released to the community for the first time on their current sentence due to release by the Board of Parole, release due to reaching their approved conditional release date (including maximum expiration with post-release supervision), or release based on reaching maximum expiration of sentence.
-png(filename="firstreleases_age_prop_d.png", width=600, height=400)
+
+#png(filename="firstreleases_age_prop_d.png", width=600, height=400)
+
+p<- 
 ggplot(data=year_age_fr) +
-  geom_line(aes(x=year, y=total_50_over/total_released, colour="all ages 50+")) +
-  geom_line(aes(x=year, y=(age17+age18+age19+age20+age21)/total_released, colour="21 and under")) +
+  geom_line(aes(x=year, y=total_50_over/total_released, colour="50 & Over"),
+            size=1, linetype="dashed") +
+  geom_line(aes(x=year, y=(age17+age18+age19+age20+age21)/total_released, colour="21 & under")) +
   geom_line(aes(x=year, y=(age22_24+age25_29)/total_released, colour="22-29")) +
   geom_line(aes(x=year, y=(age30_34+age35_39)/total_released, colour="30-39")) +
   geom_line(aes(x=year, y=(age40_49)/total_released, colour="40-49")) +
   scale_x_continuous(n.breaks=9) + scale_y_continuous(labels=scales::percent) +
   labs(title="NYS First Releases (2011-2020)", 
-                                        subtitle="Reported by the DOCCS annual releases and discharges from incarceration report.",
+                                        subtitle="Reported by the DOCCS Annual Releases and Discharges From Incarceration Report.",
                                         x="Year",
-                                        y="Individuals released (proportion)",
-                                        color="Age group by decades") + theme_nycc()
-dev.off()
+                                        y="Percent of Individuals Released ",
+                                        color="Age Group") + 
+  theme_nycc() + scale_color_nycc()
+
+p
+
+ggsave(p, filename = "../visuals/firstreleases_age_prop_d.png", width = 8, height = 5)
+
+#dev.off()
 ```
 
 ```{r}
@@ -203,16 +218,18 @@ year_age_tr_return <- year_age_tr_return %>%
 ```
 
 ```{r}
-png(filename="followup_num.png", width=600, height=400)
+#png(filename="followup_num.png", width=600, height=400)
 c <- ggplot(data=year_age_tr_return) +
   geom_line(aes(x=year,y=num_50_over,col=cohort)) +
   scale_x_continuous(n.breaks=10) + 
-  labs(title="3-Year Post-Release Follow Up (Ages 50+, 2008-2018)",
-       subtitle= "Reported by the DOCCS annual inmate releases report.",
-       x="Year released",
-       y="Individuals released (number)", color="Cohort") +
- theme_nycc()
-dev.off()
+  labs(title="Three-Year Post-Release Follow Up (Ages 50+, 2008-2018)",
+       subtitle= "Reported by the DOCCS Annual Inmate Releases Report.",
+       x="Year Released",
+       y="Number of Individuals Released", color="Cohort") +
+ theme_nycc() + scale_color_nycc()
+c
+ggsave(c, filename = "../visuals/followup_num.png", width = 8, height = 5)
+#dev.off()
 ```
 
 ```{r}
@@ -228,7 +245,7 @@ dev.off()
 ```
 
 ```{r}
-state_app <- read.csv("state_approxcommits.csv")
+state_app <- read.csv("../data/input/raw/state_approxcommits.csv")
 head(state_app)
 ```
 
