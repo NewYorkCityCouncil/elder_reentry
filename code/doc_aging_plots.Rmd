@@ -10,9 +10,9 @@ library(dplyr)
 ```
 
 ```{r}
-setwd("~/Desktop/cj_tf_2_1")
-year_age_fr <- read.csv("year_age_fr.csv")
-year_age_tr_return <- read.csv("year_age_tr_returns.csv")
+
+year_age_fr <- read.csv("../data/input/raw/state_year_age_fr.csv")
+year_age_tr_return <- read.csv("..//data/input/raw/state_year_age_tr_returns.csv")
 ```
 
 ```{r}
@@ -20,38 +20,48 @@ returns_only <- subset(year_age_tr_return,cohort == "total_return")
 ```
 
 ```{r}
-png(filename="returns_age_num.png", width=600, height=400)
-ggplot(data=returns_only) + 
-  geom_line(aes(x=year, y=num_50_over, colour="all ages 50+")) +
-  geom_line(aes(x=year, y=(age16_18+age19_20), colour="20 and under")) +
-  geom_line(aes(x=year, y=(age21_24+age25_29), colour="21-29")) +
-  geom_line(aes(x=year, y=(age30_34), colour="30-34")) +
-  geom_line(aes(x=year, y=(age35_39), colour="35-39")) +
-  geom_line(aes(x=year, y=(age40_44+age45_49), colour="40-49")) +
-  scale_x_continuous(n.breaks=9) + labs(title="NYS Returns within 3 years post (2011-2021)", 
-                                        subtitle="Reported by the DOCCS annual inmate releases report.",
-                                        x="Year released",
-                                        y="Individuals returned (number)",
-                                        color="Age group by decades") + theme_nycc()
-dev.off()
+
+p <- ggplot(data=returns_only) + 
+  geom_line(aes(x=year, y=num_50_over, colour="50 & Over"),
+            size=1), linetype = "dashed") +
+  geom_line(aes(x=year, y=(age16_18+age19_20), 
+                colour="20 & Under")) +
+  geom_line(aes(x=year, y=(age21_24+age25_29), 
+                colour="21-29")) +
+  geom_line(aes(x=year, y=(age30_34), 
+                colour="30-34")) +
+  geom_line(aes(x=year, y=(age35_39), 
+                colour="35-39")) +
+  geom_line(aes(x=year, y=(age40_44+age45_49), 
+                colour="40-49")) +
+  scale_x_continuous(n.breaks=9) + labs(title="NYS Returns within Three years Post (2011-2021)", 
+                                        subtitle="Reported by the DOCCS Annual Inmate Releases report.",
+                                        x="Year Released",
+                                        y="Number of Individuals Returned",
+                                        color="Age Group") + theme_nycc() +
+   scale_color_nycc("mixed")
+
+ggsave(p, filename = "../visuals/returns_age_num.png", width = 8, height = 5)
 ```
 
 ```{r}
 #prop out of total # inmates returned that year
-png(filename="returns_age_prop.png", width=600, height=400)
-ggplot(data=returns_only) + 
-  geom_line(aes(x=year, y=num_50_over/year_total, colour="all ages 50+")) +
-  geom_line(aes(x=year, y=(age16_18+age19_20)/year_total, colour="20 and under")) +
+p <- ggplot(data=returns_only) + 
+  geom_line(aes(x=year, y=num_50_over/year_total, colour="50 & Over"),
+            linetype = "dashed", size =1) +
+  geom_line(aes(x=year, y=(age16_18+age19_20)/year_total, colour="20 & under")) +
   geom_line(aes(x=year, y=(age21_24+age25_29)/year_total, colour="21-29")) +
   geom_line(aes(x=year, y=(age30_34)/year_total, colour="30-34")) +
   geom_line(aes(x=year, y=(age35_39)/year_total, colour="35-39")) +
   geom_line(aes(x=year, y=(age40_44+age45_49)/year_total, colour="40-49")) +
-  scale_x_continuous(n.breaks=9) + scale_y_continuous(labels=scales::percent) +labs(title="NYS Returns within 3 years post (2011-2021)", 
-                                        subtitle="Reported by the DOCCS annual inmate releases report.",
-                                        x="Year released",
-                                        y="Individuals returned (proportion)",
-                                        color="Age group by decades") + theme_nycc()
-dev.off()
+  scale_x_continuous(n.breaks=9) + scale_y_continuous(labels=scales::percent) +labs(title="NYS Returns within Three Years Post-Release (2011-2021)", 
+                                        subtitle="Reported by the DOCCS Annual Inmate Releases report.",
+                                        x="Year Released",
+                                        y="Percent of Individuals Returned",
+                                        color="Age Group") + 
+  theme_nycc() + scale_color_nycc()
+p
+ggsave(p, filename = "../visuals/returns_age_prop.png", width = 8, height = 5)
 ```
 
 ```{r, include=FALSE}
