@@ -14,18 +14,19 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r}
+```{r, data cleaning and filtering}
 library(lubridate)
 library(ggplot2)
 library(councildown)
 library(dplyr)
 library(stringr)
 library(tidyr)
+library(councildown)
 
 # Read data
 doc_releases <- read.csv("https://data.cityofnewyork.us/resource/94ri-3ium.csv?$limit=999999999", na.strings=c("","NA"))
 
-# Seperate date/time column for release date
+# Separate date/time column for release date
 doc_releases <- separate(doc_releases, discharged_dt,c("discharge_date","discharge_time"),sep="T")
 doc_releases$discharge_date <- as.Date(doc_releases$discharge_date)
 
@@ -40,30 +41,38 @@ doc_releases$admitted_year <- year(doc_releases$admitted_date)
 # Drop NA ages
 doc_releases <- doc_releases %>% drop_na(age)
 
-#  Create 50 or older at release variable
-doc_releases$age_var <- ifelse(doc_releases$age>=50, "50+", "<50")
+#  Create age variables
+doc_releases$age_var <- ifelse(doc_releases$age<=21, "21 and under", 
+                        ifelse(doc_releases$age >= 22 & doc_releases$age <=29,"22-29",
+                               ifelse(doc_releases$age>=30 & doc_releases$age<=39,"30-39",
+                              ifelse(doc_releases$age>=40 & doc_releases$age <=49,"40-49","all ages 50+"))))
 
 # Filter out Inmate status code != c(“SCO”,”SSR”) (These are people being transferred to other facilities but not re-entering society)
 doc_releases <- doc_releases %>% filter(inmate_status_code!="SCO" & inmate_status_code!="SSR")
+```
 
-# Some charts
-doc_releases %>% group_by(discharge_year, age_var) %>% summarize(count=n()) %>% mutate(percent=count/sum(count)) %>% ggplot(aes(x=discharge_year, y=percent, fill=age_var)) + geom_bar(stat="identity", position=position_dodge())
 
+
+```{r}
 # Number of people being released each year is decreasing. The percent of those being released that are 50+ and older has also been decreasing
 discharge_by_age <- doc_releases %>% group_by(discharge_year, age_var) %>% summarize(count=n()) %>% mutate(percent=count/sum(count)) 
 
-discharge_by_age %>% ggplot(aes(x=discharge_year, y=count, fill=age_var)) + geom_bar(stat="identity") + ggtitle("Proportion of Individuals Released from DOC") 
+# Percent of those released over the age of 50
+png(file="/Users/nycc/Desktop/doc_discharge_by_age.png",
+width=600, height=400)
+discharge_by_age %>% ggplot(aes(x=discharge_year, y=percent, color=age_var)) + geom_line()
+dev.off()
 
 #write.csv(discharge_by_age, "/Users/nycc/Desktop/doc_discharge_by_age.csv")
 
 # Looking at average release age over time
 avg_discharge_age <- doc_releases %>% group_by(discharge_year) %>% summarize(avg_age=mean(age), median_age=median(age)) 
 
-avg_discharge_age %>% ggplot(aes(x=discharge_year, y = avg_age)) + geom_point() + geom_line() + expand_limits(y = 0) + ggtitle("Average Release Age Over Time")
+avg_discharge_age %>% ggplot(aes(x=discharge_year, y = avg_age)) + geom_line() + expand_limits(y = 0) + ggtitle("Average Release Age Over Time")
 
 #write.csv(avg_discharge_age, "/Users/nycc/Desktop/doc_avg_discharge_age.csv")
 
-# Recidivism
+# Recidivism probabilities
 recidivism_pop <- doc_releases %>% group_by(inmateid) %>% summarize(count= n()) %>% filter(count>=2)
 
 # Number of those who are over 50 years old when released
@@ -82,7 +91,7 @@ doc_releases %>% filter(age<50) %>% group_by(inmateid) %>% summarize(count=n()) 
 
 
 ```{r}
-# Check Brook's data - this is messy dont bother with it
+# Check Brook's data - this is messy don't bother with this chunk
 doc_releases <- read.csv("https://data.cityofnewyork.us/resource/94ri-3ium.csv?$limit=999999999", na.strings=c("","NA"))
 
 # Separate date/time column for release date
@@ -129,7 +138,6 @@ summary(as.numeric(diff_distribution$smallest_diff))
 
 diff_distribution %>% group_by(smallest_diff) %>% summarize(count=n())
 diff_distribution %>% filter(smallest_diff=="2425")
-
 ```
 
 
