@@ -294,3 +294,16 @@ dev.off()
 ```{r}
 png(filename="undercustody_p.png", width=600, height=400)
 ggplot(data=total_under_custody) + 
+  geom_line(aes(x=year, y=(age50_59+age60_over)/age_total, colour="50 & over")) +
+  geom_line(aes(x=year, y=(age16_20)/age_total, colour="20 & under")) +
+  geom_line(aes(x=year, y=(age21_29)/age_total, colour="21-29")) +
+  geom_line(aes(x=year, y=(age30_39)/age_total, colour="30-39")) +
+  geom_line(aes(x=year, y=(age40_49)/age_total, colour="40-49")) +
+  scale_x_continuous(n.breaks=9) + scale_y_continuous(labels=scales::percent) +
+  labs(title="NYS Total Under Custody (2011-2021)", 
+                                        subtitle="Reported by the DOCCS Annual Under Custody Report",
+                                        x="Year",
+                                        y="Percent of Total Under Custody",
+                                        color="Age Group") + theme_nycc()
+dev.off()
+```
