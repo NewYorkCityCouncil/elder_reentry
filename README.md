@@ -14,9 +14,8 @@ An associated webpage for this analysis can be found on the [council website](ht
 
 - [Daily Census Data](https://data.cityofnewyork.us/Public-Safety/Daily-Inmates-In-Custody/7479-ugqb)
 
-### Methodology 
+### Summary & Intention
 
-#### Summary & Intention
 The incarceration rate for older adults has surged in recent decades. From 1999 to 2016, the number of people 55 and older in state or federal prisons increased 280 percent.
 
 In New York State prisons, despite an overall decline in the prison population, the proportion on older adults in the system has been rising steadily. Right now, in New York State prisons, approximately 8,000 individuals are 50+. This amounts to one in every four incarcerated people being an older adult, an increase from 12 percent of the prison population in 2008.
@@ -32,7 +31,7 @@ There is no consensus on what constitutes an older adult with respect to the jus
 
 - Over the past decade, the Data Operations Unit estimated that between 800 – 1,100 people 50+ have returned to NYC after serving time in NYS DOCC custody.
 - The percentage of people 50+ under DOCC custody has grown from roughly 15% in 2011 to around 23% in 2021 and is trending upwards.
-- People 50+ who return within 3 years after release have the second lowest rate of return to incarceration compared to the other age groups. Most returns, documented 3 years after initial release date, are due to parole violations. **[Fill in #s]**
+- People 50+ who return within 3 years after release have the second lowest rate of return to incarceration compared to the other age groups. Most returns, documented 3 years after initial release date, are due to parole violations. 
 
 
 ### Recommendations
@@ -41,5 +40,5 @@ To address the re-entry issues among the aging population, the Committee on Crim
 
 - Fair and Timely Parole Act (S307/A162) and Elder Parole Act (S2423/A2035). [Proposed Res. No. 241-A](https://legistar.council.nyc.gov/LegislationDetail.aspx?ID=5698246&GUID=33830B40-F25E-4BD8-8F07-2F8D649C22F8&Options=&Search=)
 
-### Scripts
-**Describe the intricacies, issues, data regrouping performed for each data set**
+### Methodolgy/Scripts
+**Describe the intricacies, issues, and regrouping of the data performed for each data set, link this to each script**
