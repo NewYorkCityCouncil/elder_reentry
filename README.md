@@ -1,19 +1,7 @@
-# project_template
-a template repository for future github projects
+## Analyzing the NYS DOCCS & NYC DOC 50+ Population 
+Data analysis and visuals for NYCC 2.17.23 ['Oversight - Justice in Aging – Re-entry Issues for Older New Yorkers'](https://legistar.council.nyc.gov/LegislationDetail.aspx?ID=6011313&GUID=919D8191-5202-46F4-AB57-0BBA0E597189) hearing.
 
-
-## Basic Repo Structure Overview
-
-***
-
-## Readme Example
-
-
-
-### Analyzing Storefront Vacancies
-Data analysis and visuals for NYCC 6.9.22 ['Oversight - Combatting Commercial Vacancies'](https://legistar.council.nyc.gov/MeetingDetail.aspx?From=Alert&ID=980028&GUID=239563C5-9CA2-44A7-8E1D-A970A0556192) hearing.
-
-An associated webpage for this analysis can be found [on the council website](https://council.nyc.gov/data/vacant-storefronts/): 
+An associated webpage for this analysis can be found [on the council website](https://council.nyc.gov/data/justice-in-aging/): 
 
 ***  
 
