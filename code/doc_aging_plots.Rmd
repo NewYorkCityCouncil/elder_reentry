@@ -238,7 +238,7 @@ dev.off()
 
 png(filename="followup_returnreason.png", width=600, height=400)
   ggplot(data=returns_reason) +
-  geom_line(aes(x=year,y=num_50_over/returns_total, col=cohort)) +
+  geom_line(aes(x=year,y=num_50_over/returns_50total, col=cohort)) +
   scale_x_continuous(n.breaks=10) + scale_y_continuous(labels=scales::percent) + 
   labs(title="3-Year Post-Release Returns by Reason (Ages 50+, 2008-2018)",
        subtitle= "Reported by the DOCCS annual inmate releases report.",
