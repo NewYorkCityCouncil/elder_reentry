@@ -18,7 +18,8 @@ An associated webpage for this analysis can be found [on the council website](ht
 ***  
 
 #### Data Sources 
-- [Storefronts Reported Vacant or Not (Filing Year 2020 - 2021)](https://data.cityofnewyork.us/City-Government/Storefronts-Reported-Vacant-or-Not-Filing-Year-202/92iy-9c3n)
+
+- [NY DOCCS Research and Reports](https://doccs.ny.gov/research-and-reports)
 
 - 2019 5-Year ACS Survey: *We used R package censusapi to get demographic data
 
