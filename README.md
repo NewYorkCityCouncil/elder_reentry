@@ -34,6 +34,6 @@ There is no consensus on what constitutes an older adult with respect to the jus
 
 To address the re-entry issues among the aging population, the Committee on Criminal Justice will be introducing the following bills to amend the New York City Charter and the administrative code of the City of New York in relation to:
 
-- Fair and Timely Parole Act (S307/A162) and Elder Parole Act (S2423/A2035). Proposed Res. No. 241-A
+- Fair and Timely Parole Act (S307/A162) and Elder Parole Act (S2423/A2035). [Proposed Res. No. 241-A](https://legistar.council.nyc.gov/LegislationDetail.aspx?ID=5698246&GUID=33830B40-F25E-4BD8-8F07-2F8D649C22F8&Options=&Search=)
 
 #### Scripts
