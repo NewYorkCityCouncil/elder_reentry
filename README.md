@@ -27,8 +27,13 @@ There is no consensus on what constitutes an older adult with respect to the jus
 
 #### Main Takeaways
 
+- Over the past decade, the Data Operations Unit estimated that between 800 – 1,100 people 50+ have returned to NYC after serving time in NYS DOCC custody.
+- The percentage of people 50+ under DOCC custody has grown from roughly 15% in 2011 to around 23% in 2021 and is trending upwards.
 
 #### Recommendations
 
+To address the re-entry issues among the aging population, the Committee on Criminal Justice will be introducing the following bills to amend the New York City Charter and the administrative code of the City of New York in relation to:
+
+- Fair and Timely Parole Act (S307/A162) and Elder Parole Act (S2423/A2035). Proposed Res. No. 241-A
 
 #### Scripts
