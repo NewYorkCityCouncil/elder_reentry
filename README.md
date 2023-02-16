@@ -1,6 +1,6 @@
 ## Aging Population in Jails and Prisons
 
-Data analysis and visuals for NYCC 2.17.23 ['Aging Population in Jails and Prisons']([https://legistar.council.nyc.gov/MeetingDetail.aspx?From=Alert&ID=980028&GUID=239563C5-9CA2-44A7-8E1D-A970A0556192](https://legistar.council.nyc.gov/MeetingDetail.aspx?ID=1080355&GUID=F093B565-99BE-48A3-AC7D-BC85211E53E0&Options=info|&Search=) hearing.
+Data analysis and visuals for NYCC 2.17.23 ['Aging Population in Jails and Prisons'](https://legistar.council.nyc.gov/MeetingDetail.aspx?ID=1080355&GUID=F093B565-99BE-48A3-AC7D-BC85211E53E0&Options=info|&Search=) hearing.
 
 An associated webpage for this analysis can be found on the [council website](https://council.nyc.gov/data/vacant-storefronts/): 
 
