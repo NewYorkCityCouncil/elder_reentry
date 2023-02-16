@@ -218,6 +218,37 @@ year_age_tr_return <- year_age_tr_return %>%
 ```
 
 ```{r}
+returns_only <- subset(year_age_tr_return,cohort == "returned")
+returns_reason <- subset(year_age_tr_return,cohort == "new committment" | cohort == "parole violation")
+returns_reason
+```
+
+
+```{r}
+png(filename="followup_return.png", width=600, height=400)
+  ggplot(data=returns_only) +
+  geom_line(aes(x=year,y=prop_50_totalrel)) +
+  scale_x_continuous(n.breaks=10) + scale_y_continuous(labels=scales::percent) + 
+  labs(title="3-Year Post-Release Follow Up (Ages 50+, 2008-2018)",
+       subtitle= "Reported by the DOCCS annual inmate releases report.",
+       x="Year Released",
+       y="Percent of Individuals Returned", color="Cohort") +
+ theme_nycc() + scale_color_nycc()
+dev.off()
+
+png(filename="followup_returnreason.png", width=600, height=400)
+  ggplot(data=returns_reason) +
+  geom_line(aes(x=year,y=num_50_over/returns_total, col=cohort)) +
+  scale_x_continuous(n.breaks=10) + scale_y_continuous(labels=scales::percent) + 
+  labs(title="3-Year Post-Release Returns by Reason (Ages 50+, 2008-2018)",
+       subtitle= "Reported by the DOCCS annual inmate releases report.",
+       x="Year Released",
+       y="Percent of Individuals Returned", color="Cohort") +
+ theme_nycc() + scale_color_nycc()
+dev.off()
+```
+
+```{r}
 #png(filename="followup_num.png", width=600, height=400)
 c <- ggplot(data=year_age_tr_return) +
   geom_line(aes(x=year,y=num_50_over,col=cohort)) +
