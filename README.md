@@ -2,7 +2,7 @@
 
 Data analysis and visuals for NYCC 2.17.23 ['Aging Population in Jails and Prisons'](https://legistar.council.nyc.gov/MeetingDetail.aspx?ID=1080355&GUID=F093B565-99BE-48A3-AC7D-BC85211E53E0&Options=info|&Search=) hearing.
 
-An associated webpage for this analysis can be found on the [council website](https://council.nyc.gov/data/vacant-storefronts/): 
+An associated webpage for this analysis can be found on the [council website](https://council.nyc.gov/data/justice-in-aging/): 
 
 ***  
 
