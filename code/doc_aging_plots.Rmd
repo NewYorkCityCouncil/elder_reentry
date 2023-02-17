@@ -10,20 +10,17 @@ library(dplyr)
 ```
 
 ```{r}
-
 year_age_fr <- read.csv("../data/input/raw/state_year_age_fr.csv")
 year_age_tr_return <- read.csv("..//data/input/raw/state_year_age_tr_returns.csv")
+# returns_only <- subset(year_age_tr_return,cohort == "total_return")
 ```
 
 ```{r}
-returns_only <- subset(year_age_tr_return,cohort == "total_return")
-```
-
-```{r}
-
+# ----- NUM OF RETURNS BY AGE GROUP -----
+# --- OF TOTAL RELEASES ---
 p <- ggplot(data=returns_only) + 
   geom_line(aes(x=year, y=num_50_over, colour="50 & Over"),
-            size=1), linetype = "dashed") +
+            size=1, linetype = "dashed") +
   geom_line(aes(x=year, y=(age16_18+age19_20), 
                 colour="20 & Under")) +
   geom_line(aes(x=year, y=(age21_24+age25_29), 
@@ -40,11 +37,12 @@ p <- ggplot(data=returns_only) +
                                         y="Number of Individuals Returned",
                                         color="Age Group") + theme_nycc() +
    scale_color_nycc("mixed")
-
-ggsave(p, filename = "../visuals/returns_age_num.png", width = 8, height = 5)
+# ggsave(p, filename = "../visuals/returns_age_num.png", width = 8, height = 5)
 ```
 
 ```{r}
+# ----- % OF RETURNS BY AGE GROUP -----
+# --- OF TOTAL RELEASES ---
 #prop out of total # inmates returned that year
 p <- ggplot(data=returns_only) + 
   geom_line(aes(x=year, y=num_50_over/year_total, colour="50 & Over"),
@@ -52,7 +50,6 @@ p <- ggplot(data=returns_only) +
   geom_line(aes(x=year, y=(age16_18+age19_20)/year_total, colour="20 & under")) +
   geom_line(aes(x=year, y=(age21_24+age25_29)/year_total, colour="21-29")) +
   geom_line(aes(x=year, y=(age30_34+age35_39)/year_total, colour="30-34")) +
-
   geom_line(aes(x=year, y=(age40_44+age45_49)/year_total, colour="40-49")) +
   scale_x_continuous(n.breaks=9) + scale_y_continuous(labels=scales::percent) +labs(title="NYS Returns within Three Years Post-Release (2011-2021)", 
                                         subtitle="Reported by the DOCCS Annual Inmate Releases report.",
@@ -61,20 +58,7 @@ p <- ggplot(data=returns_only) +
                                         color="Age Group") + 
   theme_nycc() + scale_color_nycc()
 p
-ggsave(p, filename = "../visuals/returns_age_prop.png", width = 8, height = 5)
-```
-
-```{r, include=FALSE}
-ggplot(data=year_age_fr) +
-  geom_line(aes(x=year, y=total_released)) + scale_x_continuous(n.breaks=9) +
-  geom_line(aes(x=year, y=total_50_over)) +
-  theme_nycc()
-```
-
-```{r, include=FALSE}
-ggplot(data=year_age_fr) +
-  geom_line(aes(x=year, y=total_50_over/total_released)) + scale_x_continuous(n.breaks=9) +
-  theme_nycc()
+# ggsave(p, filename = "../visuals/returns_age_prop.png", width = 8, height = 5)
 ```
 
 ```{r}
@@ -113,6 +97,8 @@ p <- ggplot(data=year_age_fr) +
 ```
 
 ```{r}
+# ----- NUM OF FIRST RELEASES BY AGE GROUP -----
+# These were individuals who were released to the community for the first time on their current sentence due to release by the Board of Parole, release due to reaching their approved conditional release date (including maximum expiration with post-release supervision), or release based on reaching maximum expiration of sentence.
 #png(filename="firstreleases_age_num_d.png", width=600, height=400)
 p <- ggplot(data=year_age_fr) +
   geom_line(aes(x=year, y=total_50_over, colour="all ages 50+"),
@@ -137,9 +123,7 @@ ggsave(p, filename = "../visuals/firstreleases_age_num_d.png", width = 8, height
 # ----- AGE OF PEOPLE RELEASED FROM DOC FACILITIES OVER TIME -----
 # ----- BY DECADE
 # These were individuals who were released to the community for the first time on their current sentence due to release by the Board of Parole, release due to reaching their approved conditional release date (including maximum expiration with post-release supervision), or release based on reaching maximum expiration of sentence.
-
 #png(filename="firstreleases_age_prop_d.png", width=600, height=400)
-
 p<- 
 ggplot(data=year_age_fr) +
   geom_line(aes(x=year, y=total_50_over/total_released, colour="50 & Over"),
@@ -155,11 +139,8 @@ ggplot(data=year_age_fr) +
                                         y="Percent of Individuals Released ",
                                         color="Age Group") + 
   theme_nycc() + scale_color_nycc()
-
 p
-
 ggsave(p, filename = "../visuals/firstreleases_age_prop_d.png", width = 8, height = 5)
-
 #dev.off()
 ```
 
@@ -203,6 +184,19 @@ b <- ggplot(data=year_age_fr) +
                                         color="Age group") +
   theme_nycc()
 dev.off()
+
+#png(filename="followup_num.png", width=600, height=400)
+c <- ggplot(data=year_age_tr_return) +
+  geom_line(aes(x=year,y=num_50_over,col=cohort)) +
+  scale_x_continuous(n.breaks=10) + 
+  labs(title="Three-Year Post-Release Follow Up (Ages 50+, 2008-2018)",
+       subtitle= "Reported by the DOCCS Annual Inmate Releases Report.",
+       x="Year Released",
+       y="Number of Individuals Released", color="Cohort") +
+ theme_nycc() + scale_color_nycc()
+c
+ggsave(c, filename = "../visuals/followup_num.png", width = 8, height = 5)
+#dev.off()
 ```
 
 ```{r, include=FALSE}
@@ -220,23 +214,24 @@ year_age_tr_return <- year_age_tr_return %>%
 ```{r}
 returns_only <- subset(year_age_tr_return,cohort == "returned")
 returns_reason <- subset(year_age_tr_return,cohort == "new committment" | cohort == "parole violation")
-returns_reason
 ```
 
 
 ```{r}
-png(filename="followup_return.png", width=600, height=400)
-  ggplot(data=returns_only) +
-  geom_line(aes(x=year,y=prop_50_totalrel)) +
-  scale_x_continuous(n.breaks=10) + scale_y_continuous(labels=scales::percent) + 
-  labs(title="3-Year Post-Release Follow Up (Ages 50+, 2008-2018)",
-       subtitle= "Reported by the DOCCS annual inmate releases report.",
-       x="Year Released",
-       y="Percent of Individuals Returned", color="Cohort") +
- theme_nycc() + scale_color_nycc()
-dev.off()
+# ----- RETURNS BY REASON -----
+# --- OF AGING INDIVIDUALS ---
+#png(filename="followup_return.png", width=600, height=400)
+ #  ggplot(data=returns_only) +
+ #  geom_line(aes(x=year,y=prop_50_totalrel)) +
+ #  scale_x_continuous(n.breaks=10) + scale_y_continuous(labels=scales::percent) + 
+ #  labs(title="3-Year Post-Release Follow Up (Ages 50+, 2008-2018)",
+ #       subtitle= "Reported by the DOCCS annual inmate releases report.",
+ #       x="Year Released",
+ #       y="Percent of Individuals Returned", color="Cohort") +
+ # theme_nycc() + scale_color_nycc()
+#dev.off()
 
-png(filename="return_outof50rel.png", width=600,height=400)
+#png(filename="return_outof50rel.png", width=600,height=400)
 ggplot(data=returns_only) +
   geom_line(aes(x=year,y=num_50_over/releases_50total)) +
   scale_x_continuous(n.breaks=10) + scale_y_continuous(labels=scales::percent) + 
@@ -245,9 +240,9 @@ ggplot(data=returns_only) +
        x="Year Released",
        y="Percent of Individuals Returned", color="Cohort") +
  theme_nycc() + scale_color_nycc()
-dev.off()
+#dev.off()
 
-png(filename="followup_returnreason.png", width=600, height=400)
+#png(filename="followup_returnreason.png", width=600, height=400)
   ggplot(data=returns_reason) +
   geom_line(aes(x=year,y=num_50_over/returns_50total, col=cohort)) +
   scale_x_continuous(n.breaks=10) + scale_y_continuous(labels=scales::percent) + 
@@ -256,68 +251,45 @@ png(filename="followup_returnreason.png", width=600, height=400)
        x="Year Released",
        y="Percent of Individuals Returned", color="Cohort") +
  theme_nycc() + scale_color_nycc()
-dev.off()
-```
-
-```{r}
-#png(filename="followup_num.png", width=600, height=400)
-c <- ggplot(data=year_age_tr_return) +
-  geom_line(aes(x=year,y=num_50_over,col=cohort)) +
-  scale_x_continuous(n.breaks=10) + 
-  labs(title="Three-Year Post-Release Follow Up (Ages 50+, 2008-2018)",
-       subtitle= "Reported by the DOCCS Annual Inmate Releases Report.",
-       x="Year Released",
-       y="Number of Individuals Released", color="Cohort") +
- theme_nycc() + scale_color_nycc()
-c
-ggsave(c, filename = "../visuals/followup_num.png", width = 8, height = 5)
 #dev.off()
-```
-
-```{r}
-# a2 <- ggplot_build(a)$data
-# b2 <- ggplot_build(b)$data
-# c2 <- ggplot_build(c)$data
-```
-
-```{r}
-# write.csv(a2, "frplot_num.csv")
-# write.csv(b2, "frplot_prop.csv")
-# write.csv(c2, "3yrpostplot.csv")
+  
+ggplot(data=year_age_tr_return) +
+  geom_line(aes(x=year,y=year_total,col=cohort)) +
+  scale_x_continuous(n.breaks=10) + 
+  labs(title="3-Year Post-Release Follow Up (Ages 50+, 2008-2018)",
+       subtitle= "Reported by the DOCCS annual inmate releases report.",
+       x="Year released",
+       y="Individuals released (number)", color="Cohort") +
+ theme_nycc()
 ```
 
 ```{r}
 state_app <- read.csv("../data/input/raw/state_approxcommits.csv")
-head(state_app)
 ```
 
 ```{r}
-# num of fr aged 50+ returning to nyc (approx)
+# -----NYC RETURNS -----
+# --- OF AGING INDIVIDUALS, FIRST RELEASED ---
+# number
 ggplot(data=state_app) +
   geom_line(aes(x=year, y=num_nycfr50)) + scale_x_continuous(n.breaks=9) +
   theme_nycc()
-
-# prop of fr aged 50+ returning to nyc (approx) out of total fr
+# %
 ggplot(data=state_app) +
   geom_line(aes(x=year, y=num_nycfr50/total_fr)) + scale_x_continuous(n.breaks=9) + scale_y_continuous(labels=scales::percent) + 
   labs(x="Year", y="Individuals committed to NYC (proportion)") +
   theme_nycc()
 
 ```
-```{r}
-under_custody_pop <- read.csv("../data/input/raw/under_custody_pop.csv")
-```
 
 ```{r}
+under_custody_pop <- read.csv("../data/input/raw/under_custody_pop.csv")
 total_under_custody <- subset(under_custody_pop,incarceration_status == "total under custody")
 ```
 
 ```{r}
-head(total_under_custody)
-```
-
-
-```{r}
+# -----YEARLY UNDER CUSTODY -----
+# NUMBER
 png(filename="undercustody_num.png", width=600, height=400)
 ggplot(data=total_under_custody) + 
   geom_line(aes(x=year, y=age50_59+age60_over, colour="50 & Over")) +
@@ -331,9 +303,7 @@ ggplot(data=total_under_custody) +
                                         y="Total Under Custody",
                                         color="Age Group") + theme_nycc()
 dev.off()
-```
-
-```{r}
+# %
 #png(filename="undercustody_p.png", width=600, height=400)
 p <- ggplot(data=total_under_custody) + 
   geom_line(aes(x=year, y=(age50_59+age60_over)/age_total, colour="50 & over"), size=1, linetype="dashed") +
@@ -348,9 +318,7 @@ p <- ggplot(data=total_under_custody) +
                                         y="Percent of Total Under Custody",
                                         color="Age Group") + 
   theme_nycc() + scale_color_nycc()
-
 p
-
 ggsave(p, filename = "../visuals/undercustody_p.png", width = 8, height = 5)
 #dev.off()
 ```
