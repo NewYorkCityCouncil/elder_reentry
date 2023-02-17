@@ -37,6 +37,19 @@ data_doc2[, year_adm := year(admitted_dt)]
 data_doc2[, n_per_day_date := .N, by = "date_"]
 data_doc2[, n_per_day_age_date := .N, by =c("date_", "50 Years and Over")]
 
+
+
+
+props_day <- unique(data_doc2[year %in% c("2021", "2022", "2023") & `50 Years and Over` == TRUE, .(`50 Years and Over`, n_per_day_date, n_per_day_age_date, date_)])
+
+
+props_day[date_ %in% c(as.Date("2022-01-01"), as.Date("2021-01-01"), as.Date("2023-01-01")),  ]
+
+
+# write.csv (props_day, "num_ov_50_perday.csv")
+
+
+
 top5_charges <- data_doc2[!top_charge %in% "", .N, by = "top_charge"][order(N, decreasing = TRUE)][1:5]
 ```
 
@@ -116,16 +129,23 @@ inmate_grp_dates <- lapply(list_inmate_id, function(x) tail(x, n=1))
 inmate_grp_dates_dt <- rbindlist(inmate_grp_dates)
 
 setorder(inmate_grp_dates_dt, inmateid, order_adm_times)
+f <- inmate_grp_dates_dt[, .(date_2 = lead(admitted_dt), type= "admit"), by = .(inmateid)]
+l <- inmate_grp_dates_dt[, .(date_2 = lag(date_), type= "release"), by = .(inmateid)]
 
-rem_1 <- inmate_grp_dates_dt[, .(admitted_dt, date_, inmateid)]
-rem_last <- inmate_grp_dates_dt[tail(date_, -1),.(date_),by = c("inmateid", "date_")]
-rem_fst <- inmate_grp_dates_dt[!date_ %in% head(admitted_dt, 1),.(admitted_dt),by = "inmateid"]
-cbind(rem_fst, rem_last)
+f <- f[!is.na(date_2), ]
+l <- l[!is.na(date_2), ]
+try <- rbind(f, l)
+setorder(try, inmateid, date_2, type)
 
-rem_last[, recid_time := date_-admitted_dt]
+try[, ords_2:= order(date_2), by = c("inmateid", "type")]
+melt(try, id="inmateid")
 
-ggplot(rem_last, aes(x=date_, y=recid_time))
 
+
+
+try[, diff_btw_release_adm := diff(date_2), by = "inmateid"]
+
+# check to make sure the admit date is after the release date so that we have the right order for 
 
 ```
 
